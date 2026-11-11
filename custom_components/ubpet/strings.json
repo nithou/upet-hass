@@ -83,6 +83,18 @@
       },
       "last_mqtt_update": {
         "name": "Last MQTT update"
+      },
+      "last_visit": {
+        "name": "Last visit"
+      },
+      "last_visit_cat": {
+        "name": "Last visit cat"
+      },
+      "last_visit_weight": {
+        "name": "Last visit weight"
+      },
+      "last_visit_duration": {
+        "name": "Last visit duration"
       }
     },
     "binary_sensor": {
@@ -100,6 +112,9 @@
       },
       "control_board_switch": {
         "name": "Child lock"
+      },
+      "cat_present": {
+        "name": "Cat present"
       }
     },
     "number": {

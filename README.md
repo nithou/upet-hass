@@ -112,9 +112,11 @@ Device sensors:
 - MQTT work cause.
 - Last REST update.
 - Last MQTT update.
+- Last visit, last visit cat, last visit weight, and last visit duration (from the latest cat record).
 
 Device binary sensors:
 
+- Cat present (inferred from the MQTT work state `BLOCKED`).
 - Online.
 - Deodorant expired.
 - Sensor enabled.

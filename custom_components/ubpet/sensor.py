@@ -158,6 +158,41 @@ DEVICE_SENSORS: tuple[UbpetSensorDescription, ...] = (
         device_class=SensorDeviceClass.TIMESTAMP,
         value_fn=lambda item: _runtime_state_value(item, "last_mqtt_update_at"),
     ),
+    UbpetSensorDescription(
+        key="last_visit",
+        name="Last visit",
+        icon="mdi:cat",
+        translation_key="last_visit",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        value_fn=lambda item: _milliseconds_to_datetime(_last_cat_record_value(item, "eventTime")),
+    ),
+    UbpetSensorDescription(
+        key="last_visit_cat",
+        name="Last visit cat",
+        icon="mdi:cat",
+        translation_key="last_visit_cat",
+        value_fn=lambda item: _last_cat_record_value(item, "catNickname"),
+    ),
+    UbpetSensorDescription(
+        key="last_visit_weight",
+        name="Last visit weight",
+        icon="mdi:scale",
+        translation_key="last_visit_weight",
+        native_unit_of_measurement=UnitOfMass.KILOGRAMS,
+        device_class=SensorDeviceClass.WEIGHT,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda item: _positive_number(_last_cat_record_value(item, "weight")),
+    ),
+    UbpetSensorDescription(
+        key="last_visit_duration",
+        name="Last visit duration",
+        icon="mdi:timer-outline",
+        translation_key="last_visit_duration",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        device_class=SensorDeviceClass.DURATION,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda item: _positive_number(_last_cat_record_value(item, "costTime")),
+    ),
 )
 
 CAT_SENSORS: tuple[UbpetSensorDescription, ...] = (
@@ -255,6 +290,16 @@ class UbpetDeviceSensor(CoordinatorEntity[UbpetDataUpdateCoordinator], SensorEnt
         if self.entity_description.key.startswith("mqtt_"):
             mqtt_state = item.get("mqtt_state")
             return mqtt_state if isinstance(mqtt_state, dict) else {}
+        if self.entity_description.key.startswith("last_visit"):
+            record = _last_cat_record(item)
+            if record is None:
+                return {}
+            return {
+                "cat_info_id": record.get("catInfoId"),
+                "cat_nickname": record.get("catNickname"),
+                "event_type": record.get("eventType"),
+                "visit_at": _milliseconds_to_datetime(record.get("eventTime")),
+            }
         if self.entity_description.key in {
             "last_rest_update",
             "last_mqtt_update",
@@ -417,3 +462,26 @@ def _runtime_state_value(item: dict[str, Any], key: str) -> Any:
     if not isinstance(runtime_state, dict):
         return None
     return runtime_state.get(key)
+
+
+def _last_cat_record(item: dict[str, Any]) -> dict[str, Any] | None:
+    records = item.get("cat_records")
+    if not isinstance(records, list):
+        return None
+    for record in records:
+        if isinstance(record, dict):
+            return record
+    return None
+
+
+def _last_cat_record_value(item: dict[str, Any], key: str) -> Any:
+    record = _last_cat_record(item)
+    return record.get(key) if record else None
+
+
+def _positive_number(value: Any) -> float | None:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if number > 0 else None

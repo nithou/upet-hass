@@ -83,6 +83,18 @@
       },
       "last_mqtt_update": {
         "name": "Останнє MQTT оновлення"
+      },
+      "last_visit": {
+        "name": "Останній візит"
+      },
+      "last_visit_cat": {
+        "name": "Кіт останнього візиту"
+      },
+      "last_visit_weight": {
+        "name": "Вага під час останнього візиту"
+      },
+      "last_visit_duration": {
+        "name": "Тривалість останнього візиту"
       }
     },
     "binary_sensor": {
@@ -100,6 +112,9 @@
       },
       "control_board_switch": {
         "name": "Блокування від дітей"
+      },
+      "cat_present": {
+        "name": "Кіт у туалеті"
       }
     },
     "number": {
